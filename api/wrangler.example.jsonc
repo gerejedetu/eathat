@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "eathat-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-10",
+  "observability": { "enabled": true },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "cuisine",
+      "database_id": "YOUR-D1-DATABASE-ID",
+      "migrations_dir": "migrations"
+    }
+  ]
+}
