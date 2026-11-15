@@ -17,6 +17,15 @@ iPhone / iPad app ─────REST────────────┘
 The interface is in French. Eathat is built for one kitchen, so it has no accounts. Each deployment is its own
 kitchen, protected by two secret keys.
 
+<p align="center">
+  <img src="docs/screenshots/week.png" width="260" alt="Ma semaine: the planned meals for each day">
+  <img src="docs/screenshots/recipes.png" width="260" alt="Toutes les recettes: the recipes Claude saved, with photos">
+  <img src="docs/screenshots/stock.png" width="260" alt="Mon stock: the fridge and the cupboard, what expires first on top">
+</p>
+
+The screenshots use the app's made-up preview kitchen. Dish and ingredient photos come from
+[TheMealDB](https://www.themealdb.com).
+
 ## The MCP server (`api/`)
 
 This is a Cloudflare Worker with a D1 database. The MCP server speaks stateless Streamable HTTP and needs no SDK. It
@@ -90,7 +99,8 @@ swiftlint lint
 xcodebuild test -project Eathat.xcodeproj -scheme Eathat -destination 'platform=iOS Simulator,name=iPhone 17 Pro' -skipPackagePluginValidation
 ```
 
-In Debug builds, launching with `-preview-kitchen` shows the built-in fictional data instead of your kitchen.
+In Debug builds, launching with `-preview-kitchen` shows the built-in fictional data instead of your kitchen, and
+`-startTab <0-3>` opens a given tab (how the screenshots above were taken).
 
 ## What stays private
 
