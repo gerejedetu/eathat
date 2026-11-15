@@ -1,0 +1,24 @@
+# Xcode
+xcuserdata/
+DerivedData/
+build/
+
+# macOS
+.DS_Store
+
+# Secrets and local state of the API (Cloudflare Worker)
+.env
+api/node_modules/
+api/.wrangler/
+api/.dev.vars
+
+# Xcode secrets (copy Config/Secrets.example.xcconfig → Config/Secrets.xcconfig)
+Config/Secrets.xcconfig
+
+# Personal data and account ids, kept local (examples are committed instead)
+api/seed.sql
+api/wrangler.jsonc
+
+# Local notes for the coding assistant
+CLAUDE.md
+.claude/
