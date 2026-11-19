@@ -34,14 +34,14 @@ answers at:
 - `/mcp/{EATHAT_MCP_TOKEN}`, for clients that only take a URL, such as claude.ai connectors;
 - `/mcp` with `Authorization: Bearer {EATHAT_MCP_TOKEN}`.
 
-The server has 23 tools:
+The server has 24 tools:
 
 | Area | Tools |
 |---|---|
 | Context | `get_cooking_context` (stock, expiring items, preferences, the week's plan and rules for proposing a meal) |
 | Stock | `list_inventory`, `get_expiring_soon`, `consume_item`, `mark_wasted`, `open_item`, `move_item`, `update_best_before` |
 | What comes in | `add_stock_item`, `import_order` (an order and its lines, never imported twice), `remove_stock_item` |
-| Recipes | `save_recipe`, `list_recipes`, `rate_recipe`, `log_meal`, `delete_recipe` |
+| Recipes | `save_recipe`, `list_recipes`, `rate_recipe`, `log_meal`, `list_meals` (what was cooked, day by day), `delete_recipe` |
 | Week | `get_meal_plan`, `plan_meal`, `unplan_meal` |
 | Photos | `find_photos` (real dish photos from TheMealDB), `set_image` |
 | Preferences | `get_preferences`, `set_preference` |
@@ -52,7 +52,7 @@ Money is stored in cents. Best-before dates are `YYYY-MM-DD` in Paris time.
 The app has its own small REST API, authenticated with `Authorization: Bearer {EATHAT_API_KEY}`. It reuses the same
 stock and recipe code as the MCP tools:
 
-- `GET /v1/stock`, `GET /v1/recipes` and `GET /v1/preferences`;
+- `GET /v1/stock`, `GET /v1/recipes`, `GET /v1/preferences` and `GET /v1/meals` (the meals cooked over the last 60 days);
 - `GET|POST /v1/plan` and `DELETE /v1/plan/{id}`;
 - `POST /v1/stock/{id}/consume|waste|open|move|best-before`;
 - `POST /v1/recipes/{id}/cooked`.

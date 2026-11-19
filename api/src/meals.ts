@@ -1,4 +1,4 @@
-import { ACTIVE, nowISO, round, UserError, type Env } from "./db";
+import { ACTIVE, addDays, nowISO, round, today, UserError, type Env } from "./db";
 import { recipe } from "./recipes";
 import { consume } from "./stock";
 
@@ -55,4 +55,46 @@ export async function cookRecipe(env: Env, recipeId: number, note: string | null
     if (wanted > 1e-9) result.skipped.push({ name: ingredient.name, reason: `il manquait ${round(wanted)}` });
   }
   return result;
+}
+
+/** A meal in the log, as the journal shows it. */
+export interface EatenMeal {
+  id: number;
+  /** The kitchen day it was eaten, 'YYYY-MM-DD' in Paris. */
+  day: string;
+  eatenAt: string;
+  /** Null once the recipe is deleted. */
+  recipeId: number | null;
+  title: string | null;
+  imageUrl: string | null;
+  servings: number | null;
+  note: string | null;
+}
+
+interface MealRow {
+  id: number;
+  eaten_at: string;
+  recipe_id: number | null;
+  title: string | null;
+  image_url: string | null;
+  servings: number | null;
+  note: string | null;
+}
+
+/** The meals eaten over the last `days` kitchen days (today included), newest first. */
+export async function listMeals(env: Env, days = 60): Promise<EatenMeal[]> {
+  const since = new Date(`${addDays(today(), -days)}T00:00:00Z`).toISOString();
+  const { results } = await env.DB.prepare(`SELECT m.id, m.eaten_at, m.recipe_id, r.title, r.image_url, m.servings, m.note
+    FROM meals_log m LEFT JOIN recipes r ON r.id = m.recipe_id WHERE m.eaten_at >= ?
+    ORDER BY m.eaten_at DESC, m.id DESC`).bind(since).all<MealRow>();
+  return results.map((row) => ({
+    id: row.id,
+    day: today(new Date(row.eaten_at)),
+    eatenAt: row.eaten_at,
+    recipeId: row.recipe_id,
+    title: row.title,
+    imageUrl: row.image_url,
+    servings: row.servings,
+    note: row.note,
+  }));
 }

@@ -1,5 +1,5 @@
 import { LOCATIONS, today, UserError, type Env, type Location } from "./db";
-import { cookRecipe } from "./meals";
+import { cookRecipe, listMeals } from "./meals";
 import { addStockItem, deleteRecipe, importOrder, removeStockItem, type NewItem } from "./orders";
 import { findPhotos } from "./photos";
 import { listPlan, planMeal, SLOTS, unplanMeal, type Slot } from "./plan";
@@ -521,6 +521,19 @@ export const tools: Tool[] = [
     },
     run: (env, args) => cookRecipe(env, number(args, "recipeId", { integer: true, min: 1 })!,
       text(args, "note", { optional: true, max: 500 }) ?? null),
+  },
+  {
+    name: "list_meals",
+    title: "Repas déjà cuisinés",
+    description: "Le journal des repas cuisinés (log_meal ou « Je l'ai cuisinée » dans l'app), les plus récents d'abord, " +
+      "chacun avec son jour (AAAA-MM-JJ, heure de Paris) : ce que l'utilisateur a mangé jour par jour.",
+    inputSchema: {
+      type: "object",
+      properties: { days: { type: "integer", minimum: 1, maximum: 365, description: "Jours en arrière, 60 par défaut." } },
+      additionalProperties: false,
+    },
+    annotations: { readOnlyHint: true },
+    run: (env, args) => listMeals(env, number(args, "days", { optional: true, integer: true, min: 1, max: 365 }) ?? 60),
   },
   {
     name: "list_recipes",

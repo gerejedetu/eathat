@@ -1,5 +1,5 @@
 import { isDay, LOCATIONS, today, UserError, type Env, type Location } from "./db";
-import { cookRecipe } from "./meals";
+import { cookRecipe, listMeals } from "./meals";
 import { handleMCP } from "./mcp";
 import { listPlan, planMeal, unplanMeal, type Slot } from "./plan";
 import { listRecipes, preferences } from "./recipes";
@@ -59,6 +59,7 @@ async function handleAPI(request: Request, env: Env, pathname: string): Promise<
     if (method === "GET" && pathname === "/v1/stock") return json({ today: today(), items: await listStock(env) });
     if (method === "GET" && pathname === "/v1/recipes") return json({ recipes: await listRecipes(env, 100) });
     if (method === "GET" && pathname === "/v1/preferences") return json({ preferences: await preferences(env) });
+    if (method === "GET" && pathname === "/v1/meals") return json({ today: today(), meals: await listMeals(env) });
 
     if (method === "GET" && pathname === "/v1/plan") return json({ today: today(), meals: await listPlan(env) });
     if (method === "POST" && pathname === "/v1/plan") {
