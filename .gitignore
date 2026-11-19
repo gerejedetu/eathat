@@ -22,3 +22,16 @@ api/wrangler.jsonc
 # Local notes for the coding assistant
 CLAUDE.md
 .claude/
+
+# Never committed either: other env files, Apple signing keys, assistant conversations and exports
+.env.*
+!.env.example
+.dev.vars*
+*.p8
+*.p12
+*.pem
+*.mobileprovision
+*.jsonl
+transcripts/
+*transcript*
+*conversation*
