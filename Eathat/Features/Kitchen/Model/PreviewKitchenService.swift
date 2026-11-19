@@ -116,6 +116,20 @@ nonisolated struct PreviewKitchenService: KitchenService {
         CookedMeal(mealId: 1, recipeId: recipeId, taken: [], skipped: [])
     }
 
+    /// The last days' meals: which dish (1-based) and how many days ago; lunch and dinner alternate.
+    func meals() throws -> [EatenMeal] {
+        let log: [(dish: Int, daysAgo: Int)] = [(2, 0), (4, 1), (1, 1), (6, 2), (5, 4)]
+        return log.enumerated().map { index, entry in
+            let recipe = Self.recipes[entry.dish - 1]
+            let day = Self.day(in: -entry.daysAgo)
+            let hour = index.isMultiple(of: 2) ? "11" : "18"
+            return EatenMeal(
+                id: index + 1, day: day, eatenAt: "\(day)T\(hour):30:00.000Z",
+                recipeId: recipe.id, title: recipe.title, imageUrl: recipe.imageUrl, servings: recipe.servings
+            )
+        }
+    }
+
     func plan() throws -> [PlannedMeal] {
         Self.week.enumerated().map { index, meal in
             let recipe = Self.recipes[meal.dish - 1]

@@ -83,9 +83,10 @@ To run it locally:
 ## The app (`Eathat/`)
 
 The app is written in SwiftUI for iOS 26 and Swift 6. It runs on iPhone in portrait and on iPad in every orientation,
-where the tab bar becomes a sidebar. It has four tabs:
+where the tab bar becomes a sidebar. It has five tabs:
 
 - **Semaine**, the planned meals for the next seven days;
+- **Journal**, the meals already cooked, day by day, the newest day first;
 - **Recettes**, the recipes Claude saved, with step-by-step cooking and timers;
 - **Stock**, grouped by place, with what expires first on top;
 - **Réglages**, the kitchen and its preferences.
@@ -100,7 +101,7 @@ xcodebuild test -project Eathat.xcodeproj -scheme Eathat -destination 'platform=
 ```
 
 In Debug builds, launching with `-preview-kitchen` shows the built-in fictional data instead of your kitchen, and
-`-startTab <0-3>` opens a given tab (how the screenshots above were taken).
+`-startTab <0-4>` opens a given tab (4 is Journal) (how the screenshots above were taken).
 
 ## What stays private
 

@@ -14,7 +14,8 @@ actor FakeKitchenService: KitchenService {
     var results: [Int: StockLine] = [:]
     var meal = CookedMeal(mealId: 1, recipeId: 1, taken: [], skipped: [])
     var savedPreferences: [String: String] = [:]
-    var meals: [PlannedMeal] = []
+    var planned: [PlannedMeal] = []
+    var eaten: [EatenMeal] = []
     private(set) var removed: [Int] = []
     var preferencesFail = false
     private(set) var performed: [(StockAction, Int)] = []
@@ -45,7 +46,11 @@ actor FakeKitchenService: KitchenService {
     }
 
     func setMeals(_ value: [PlannedMeal]) {
-        meals = value
+        planned = value
+    }
+
+    func setEaten(_ value: [EatenMeal]) {
+        eaten = value
     }
 
     func setPreferences(_ value: [String: String]) {
@@ -83,19 +88,24 @@ actor FakeKitchenService: KitchenService {
 
     func plan() throws -> [PlannedMeal] {
         if fails { throw Failure() }
-        return meals
+        return planned
+    }
+
+    func meals() throws -> [EatenMeal] {
+        if fails { throw Failure() }
+        return eaten
     }
 
     func addToPlan(day: String, slot: MealSlot, recipeId: Int) throws -> PlannedMeal {
         if fails { throw Failure() }
-        let planned = PlannedMeal(id: meals.count + 100, day: day, slot: slot, recipeId: recipeId, title: "Recette")
-        meals.append(planned)
-        return planned
+        let added = PlannedMeal(id: planned.count + 100, day: day, slot: slot, recipeId: recipeId, title: "Recette")
+        planned.append(added)
+        return added
     }
 
     func removeFromPlan(id: Int) throws {
         if fails { throw Failure() }
         removed.append(id)
-        meals.removeAll { $0.id == id }
+        planned.removeAll { $0.id == id }
     }
 }

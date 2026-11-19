@@ -14,6 +14,11 @@ struct RootView: View {
             } label: {
                 CroutonTabLabel(title: "Semaine", systemImage: "calendar")
             }
+            Tab(value: 4) {
+                JournalScreen()
+            } label: {
+                CroutonTabLabel(title: "Journal", systemImage: "book.closed")
+            }
             Tab(value: 1) {
                 RecipesScreen()
             } label: {
@@ -40,7 +45,7 @@ struct RootView: View {
 }
 
 extension RootView {
-    /// The first tab: Semaine, or the one `-startTab <0-3>` asks for at launch in Debug (for screenshots).
+    /// The first tab: Semaine, or the one `-startTab <0-4>` (4 is Journal) asks for at launch in Debug (for screenshots).
     private static var startTab: Int {
         #if DEBUG
         UserDefaults.standard.integer(forKey: "startTab")

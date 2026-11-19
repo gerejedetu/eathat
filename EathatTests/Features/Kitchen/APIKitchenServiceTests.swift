@@ -112,4 +112,21 @@ struct StockActionTests {
         #expect(StockAction.setBestBefore("2026-12-01").payload == .init(bestBefore: "2026-12-01"))
         #expect(StockAction.open.payload == .init())
     }
+
+    @Test("reads the meal log from GET /v1/meals")
+    func meals() async throws {
+        let answer = """
+        {"today":"2026-11-19","meals":[{"id":5,"day":"2026-11-19","eatenAt":"2026-11-19T11:30:00.000Z","recipeId":2,
+        "title":"Dal","imageUrl":"https://www.themealdb.com/images/media/meals/x.jpg","servings":2,"note":null},
+        {"id":4,"day":"2026-11-18","eatenAt":"2026-11-18T19:00:00.000Z","recipeId":null,"title":null,"imageUrl":null,
+        "servings":null,"note":"restes"}]}
+        """
+        let client = FakeHTTPClient(answer: answer)
+        let meals = try await APIKitchenService(client: client).meals()
+        #expect(meals.map(\.id) == [5, 4])
+        #expect(meals.first?.imageUrl?.lastPathComponent == "x.jpg")
+        #expect(meals.last?.recipeId == nil)
+        #expect(meals.last?.note == "restes")
+        #expect(await client.requests == [.get("v1/meals")])
+    }
 }

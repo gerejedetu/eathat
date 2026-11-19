@@ -8,6 +8,8 @@ nonisolated protocol KitchenService: Sendable {
     func recipes() async throws -> [Recipe]
     /// Logs a meal of `recipeId` and takes its ingredients off the stock.
     func cook(recipeId: Int) async throws -> CookedMeal
+    /// The meals already cooked, newest first.
+    func meals() async throws -> [EatenMeal]
     /// The user's preferences, by key, as Claude keeps them.
     func preferences() async throws -> [String: String]
     /// The meals planned from today for a week.
@@ -36,6 +38,10 @@ nonisolated struct APIKitchenService: KitchenService {
         let meals: [PlannedMeal]
     }
 
+    private struct MealsAnswer: Decodable {
+        let meals: [EatenMeal]
+    }
+
     private struct PlanRequest: Encodable {
         let day: String
         let slot: MealSlot
@@ -61,6 +67,10 @@ nonisolated struct APIKitchenService: KitchenService {
 
     func cook(recipeId: Int) async throws -> CookedMeal {
         try await get(CookedMeal.self, .post("v1/recipes/\(recipeId)/cooked"))
+    }
+
+    func meals() async throws -> [EatenMeal] {
+        try await get(MealsAnswer.self, .get("v1/meals")).meals
     }
 
     func preferences() async throws -> [String: String] {

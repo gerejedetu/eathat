@@ -17,6 +17,8 @@ final class KitchenStore {
     private(set) var preferences: [Preference] = []
     /// The meals planned for the week; empty until they load.
     private(set) var plan: [PlannedMeal] = []
+    /// The meals already cooked, newest first; empty until they load.
+    private(set) var eaten: [EatenMeal] = []
     private(set) var phase: Phase = .idle
     /// The place the stock screen shows; nil shows them all.
     var location: StorageLocation?
@@ -39,6 +41,11 @@ final class KitchenStore {
         MealWeek.days(plan)
     }
 
+    /// What was eaten, day by day, the newest day first.
+    var journal: [MealLog.Day] {
+        MealLog.days(eaten)
+    }
+
     /// The stock by place, as Crouton's Groceries list.
     var shelves: [StockShelves.Shelf] {
         StockShelves.sections(lines)
@@ -57,6 +64,7 @@ final class KitchenStore {
         }
         if let values = try? await service.preferences() { preferences = Preference.list(values) }
         if let meals = try? await service.plan() { plan = meals }
+        if let meals = try? await service.meals() { eaten = meals }
     }
 
     /// Runs a quick action and puts the line's new state in place; a finished or thrown-away line leaves the list.
@@ -107,6 +115,7 @@ final class KitchenStore {
         do {
             let meal = try await service.cook(recipeId: recipe.id)
             lines = try await service.stock()
+            if let meals = try? await service.meals() { eaten = meals }
             return meal
         } catch {
             actionError = error.localizedDescription
