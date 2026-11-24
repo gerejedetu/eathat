@@ -59,7 +59,15 @@ async function handleAPI(request: Request, env: Env, pathname: string): Promise<
     if (method === "GET" && pathname === "/v1/stock") return json({ today: today(), items: await listStock(env) });
     if (method === "GET" && pathname === "/v1/recipes") return json({ recipes: await listRecipes(env, 100) });
     if (method === "GET" && pathname === "/v1/preferences") return json({ preferences: await preferences(env) });
-    if (method === "GET" && pathname === "/v1/meals") return json({ today: today(), meals: await listMeals(env) });
+    if (method === "GET" && pathname === "/v1/meals") {
+      // ?from=YYYY-MM-DD&to=YYYY-MM-DD (Paris days, `to` defaults to `from`), or the last 60 days.
+      const params = new URL(request.url).searchParams;
+      const from = params.get("from");
+      if (from === null) return json({ today: today(), meals: await listMeals(env) });
+      const to = params.get("to") ?? from;
+      if (!isDay(from) || !isDay(to) || from > to) throw new UserError("`from` et `to` doivent être des dates AAAA-MM-JJ, `from` d'abord.");
+      return json({ today: today(), meals: await listMeals(env, { from, to }) });
+    }
 
     if (method === "GET" && pathname === "/v1/plan") return json({ today: today(), meals: await listPlan(env) });
     if (method === "POST" && pathname === "/v1/plan") {

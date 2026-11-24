@@ -81,12 +81,19 @@ interface MealRow {
   note: string | null;
 }
 
-/** The meals eaten over the last `days` kitchen days (today included), newest first. */
-export async function listMeals(env: Env, days = 60): Promise<EatenMeal[]> {
-  const since = new Date(`${addDays(today(), -days)}T00:00:00Z`).toISOString();
+/**
+ * The meals eaten newest first: over the last `days` kitchen days (today included), or from `from` to `to`
+ * (Paris days, both included).
+ */
+export async function listMeals(env: Env, range: number | { from: string; to: string } = 60): Promise<EatenMeal[]> {
+  const window = typeof range === "number" ? { from: addDays(today(), -range), to: null } : range;
+  // A day early and late in UTC, then each meal is kept by its Paris day.
+  const since = new Date(`${addDays(window.from, -1)}T00:00:00Z`).toISOString();
+  const until = window.to ? new Date(`${addDays(window.to, 2)}T00:00:00Z`).toISOString() : null;
   const { results } = await env.DB.prepare(`SELECT m.id, m.eaten_at, m.recipe_id, r.title, r.image_url, m.servings, m.note
-    FROM meals_log m LEFT JOIN recipes r ON r.id = m.recipe_id WHERE m.eaten_at >= ?
-    ORDER BY m.eaten_at DESC, m.id DESC`).bind(since).all<MealRow>();
+    FROM meals_log m LEFT JOIN recipes r ON r.id = m.recipe_id WHERE m.eaten_at >= ?1 AND (?2 IS NULL OR m.eaten_at < ?2)
+    ORDER BY m.eaten_at DESC, m.id DESC`).bind(since, until).all<MealRow>();
+  const inRange = (day: string) => day >= window.from && (window.to === null || day <= window.to);
   return results.map((row) => ({
     id: row.id,
     day: today(new Date(row.eaten_at)),
@@ -96,5 +103,5 @@ export async function listMeals(env: Env, days = 60): Promise<EatenMeal[]> {
     imageUrl: row.image_url,
     servings: row.servings,
     note: row.note,
-  }));
+  })).filter((meal) => inRange(meal.day));
 }

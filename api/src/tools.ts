@@ -1,4 +1,4 @@
-import { LOCATIONS, today, UserError, type Env, type Location } from "./db";
+import { isDay, LOCATIONS, today, UserError, type Env, type Location } from "./db";
 import { cookRecipe, listMeals } from "./meals";
 import { addStockItem, deleteRecipe, importOrder, removeStockItem, type NewItem } from "./orders";
 import { findPhotos } from "./photos";
@@ -529,11 +529,21 @@ export const tools: Tool[] = [
       "chacun avec son jour (AAAA-MM-JJ, heure de Paris) : ce que l'utilisateur a mangé jour par jour.",
     inputSchema: {
       type: "object",
-      properties: { days: { type: "integer", minimum: 1, maximum: 365, description: "Jours en arrière, 60 par défaut." } },
+      properties: {
+        days: { type: "integer", minimum: 1, maximum: 365, description: "Jours en arrière, 60 par défaut." },
+        from: { type: "string", description: "Premier jour (AAAA-MM-JJ, heure de Paris), à la place de `days`." },
+        to: { type: "string", description: "Dernier jour inclus (AAAA-MM-JJ), `from` par défaut." },
+      },
       additionalProperties: false,
     },
     annotations: { readOnlyHint: true },
-    run: (env, args) => listMeals(env, number(args, "days", { optional: true, integer: true, min: 1, max: 365 }) ?? 60),
+    run: (env, args) => {
+      if (args.from === undefined) return listMeals(env, number(args, "days", { optional: true, integer: true, min: 1, max: 365 }) ?? 60);
+      const from = args.from;
+      const to = args.to ?? from;
+      if (!isDay(from) || !isDay(to) || from > to) throw new UserError("`from` et `to` doivent être des dates AAAA-MM-JJ, `from` d'abord.");
+      return listMeals(env, { from, to });
+    },
   },
   {
     name: "list_recipes",
